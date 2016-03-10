@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.2.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+
+
+	<security:http auto-config="true">
+		<security:intercept-url pattern="/" access="permitAll" />
+		<security:intercept-url pattern="/welcome"
+			access="permitAll" />
+		<security:intercept-url pattern="/login"
+			access="permitAll" />
+		<security:intercept-url pattern="/register"
+			access="permitAll" />
+			<security:intercept-url pattern="/error"
+			access="permitAll" />
+		<security:intercept-url pattern="/applicant**"
+			access="hasRole('APPLICANT') or hasRole('ADMIN')" />
+		<security:intercept-url pattern="/recruiter**"
+			access="hasRole('RECRUIT') or hasRole('ADMIN')" />
+		<security:intercept-url pattern="/admin**"
+			access="hasRole('ADMIN')" />
+		<security:intercept-url pattern="/dba**"
+			access="hasRole('ADMIN') and hasRole('DBA')" />
+		<security:form-login login-page="/login"
+			username-parameter="ssoId" password-parameter="password"
+			authentication-failure-url="/denied" />
+		<security:csrf />
+		<security:access-denied-handler
+			error-page="/denied" />
+	</security:http>
+
+	<security:authentication-manager>
+		<security:authentication-provider>
+			<security:user-service>
+				<security:user name="admin" password="123123"
+					authorities="ROLE_ADMIN" />
+				<security:user name="dba" password="123123"
+					authorities="ROLE_ADMIN,ROLE_DBA" />
+			</security:user-service>
+		</security:authentication-provider>
+		<security:authentication-provider>
+			<security:jdbc-user-service
+				data-source-ref="dataSource"
+				users-by-username-query="SELECT username, password, CASE enabled WHEN 1 THEN 'true' ELSE 'false' END 'enabled' FROM Person WHERE username=?;"
+				authorities-by-username-query="SELECT u.username, r.authority_name FROM Person u, Role r WHERE u.role_id = r.role_id AND u.username=?;"
+				id="jdbcUserService" />
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+	<security:global-method-security
+		secured-annotations="enabled"></security:global-method-security>
+
+</beans>
