@@ -6,6 +6,8 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.apache.log4j.Logger;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -72,6 +74,7 @@ public class RegisterController {
 
 		System.out.println(model.toString());
 		personService.create(person);
+
 		logger.info("A new user is register with the name: " + person.getName() + " surname: " +  person.getSurname() + " username: " + person.getUsername() + " email: " + person.getEmail() + " role: " + person.getRole().getName() + " SSN: " + person.getSsn());
 
 		return "registered";
